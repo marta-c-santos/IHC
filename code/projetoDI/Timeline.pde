@@ -1,4 +1,7 @@
 void drawTimeline() { 
+    fill(255,colorBar,colorBar);
+    noStroke();
+    
     if (invertX == 0 && invertY == 0) {
     rect(0,0,xBar,thiness);
     xBar+=incBarX;

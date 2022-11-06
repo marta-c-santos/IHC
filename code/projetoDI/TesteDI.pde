@@ -8,6 +8,10 @@ int nSlots = 60; //número de slots possíveis
 int activeSlot = 0; //slot atual 
 boolean goodToDraw = true;
 
+int colorBar = 255;
+
+float amp = 0;
+
 float timeToTravelX, timeToTravelY; //tempo que a barra demora a percorrer os lados do ecrã
 float incBarX, incBarY; //incremento em pixeis da barra
 int xBar = 0, yBar = 0; //tamanho atual da barra
@@ -20,6 +24,7 @@ int nPeixes = 2; //numero de peixes
 Boia boia;
 
 float thiness;
+float thinCoef = 1;
 PFont f;
 
 SoundFile ambientSound1;
@@ -32,7 +37,6 @@ void setup(){
     background(175,238,238);
     noStroke();
 
-    thiness = float(displayHeight/100);
     timeToTravelX = (float(displayWidth)/(2*displayWidth + 2*displayHeight))*loopLength;
     timeToTravelY = (float(displayHeight)/(2*displayWidth + 2*displayHeight))*loopLength;
     incBarX=displayWidth/(timeToTravelX*30/1000);
@@ -40,7 +44,7 @@ void setup(){
 
     ambientSound1 = new SoundFile(this, "ambientSound1.mp3");
     ambientSound1.loop();
-    ambientSound1.amp(0.75);
+    ambientSound1.amp(amp);
     
     //inicializar timeline -----//-----//-----
     
@@ -61,7 +65,7 @@ void setup(){
     
     //criacao da boia -----//-----//-----
     
-    boia = new Boia("boia.png","botoes",displayWidth/2,displayHeight/2,displayHeight/6);
+    boia = new Boia("boia.png","botoes.png",displayWidth/2,displayHeight/2,displayHeight/6,displayHeight/3);
     
     f = createFont("Arial",16,true);
 }
@@ -71,8 +75,21 @@ void draw(){
   instant = millis();
   background(175,238,238);
   
+  thiness = displayHeight/100*thinCoef;
+  
+  if(colorBar < 255) colorBar+=9;
+  if (thinCoef > 1) {
+    thinCoef-=0.05;
+    fill(255,colorBar,colorBar);
+    noStroke();
+    rect(0,0,displayWidth,thiness);
+    rect(displayWidth-thiness,0,thiness,displayHeight);
+    rect(0,displayHeight-thiness,displayWidth,thiness);
+    rect(0,0,thiness,displayHeight);
+  }
+  
   boia.draw();
- 
+  
   //desenhar peixes
   for (int i = 0; i<nPeixes; i++) {
     peixes[i].draw();
@@ -105,8 +122,29 @@ void draw(){
   
   if (goodToDraw) drawTimeline();
   
-  textFont(f,16);                  
-  fill(0);                      
-  text(str(activeSlot),10,100); 
-  fill(255,255,255);  
+  //textFont(f,16);                  
+  //fill(0);                      
+  //text(str(activeSlot),10,100); 
+  //fill(255,255,255);  
   }
+  
+  void keyPressed() {
+  if (key == 'm') {
+    if (amp == 0.75) {
+      amp = 0;
+      ambientSound1.amp(amp);
+    }
+    else {
+      amp = 0.75;
+      ambientSound1.amp(amp);
+    }
+  }
+  }
+  
+ void cleanTimeline() {
+       for (int i = 0; i<nSlots; i++) {
+      for (int j=0; j<nPeixes; j++) {
+        timeline[i][j] = -1;
+      }
+    }
+ }

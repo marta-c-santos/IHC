@@ -8,7 +8,6 @@ public class Peixe {
   int lastClick;
   int x, y;
   float size, reactSize;
-  boolean hold = false;
 
   Peixe(int id, String img, String sound1, String sound2, String sound3, int x, int y, float size) {
     this.id = id;
@@ -35,9 +34,10 @@ public class Peixe {
       imageMode(CENTER);
     }
     
-    if (!(mouseX < x-size || mouseX > x+size || mouseY < y-size || mouseY > y+size) && mousePressed) {
+    if (!(mouseX < x-size/2 || mouseX > x+size/2 || mouseY < y-size/2 || mouseY > y+size/2) && mousePressed) {
     mousePressed = false;
     this.playAndRecord();
+    this.react();
     }
   }
   
