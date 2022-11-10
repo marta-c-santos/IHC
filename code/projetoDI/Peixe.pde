@@ -6,14 +6,16 @@ public class Peixe {
   SoundFile[] sounds = new  SoundFile[3];
   int id;
   int lastClick;
-  int x, y;
+  float x, y;
   float size, reactSize;
+  float phase;
 
-  Peixe(int id, String img, String sound1, String sound2, String sound3, int x, int y, float size) {
+  Peixe(int id, String img, String sound1, String sound2, String sound3, int x, int y, float size,float phase) {
     this.id = id;
     this.img = loadImage(img);
     this.x = x;
     this.y = y;
+    this.phase = phase;
     this.size = size;
     reactSize = size;
 
@@ -24,10 +26,16 @@ public class Peixe {
   }
 
   void draw() {
+    
+    phase += 0.01;
+    
+    x = displayWidth/2 + 500*sin(phase);
+   
     if (reactSize > size) {
       reactSize-=2;
       image(img, x, y, reactSize, reactSize);
       imageMode(CENTER);
+      
     }
     else {
       image(img, x, y, size, size);

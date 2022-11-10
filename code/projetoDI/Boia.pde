@@ -37,7 +37,7 @@ public class Boia {
       
       if (mouseX < x+size2/2 && mouseX > x-size2/2 && mouseY < y+size2/2 && mouseY > y-size2/2 && mousePressed) {
         if (mouseX < x-size1/2 || mouseX > x+size1/2 || mouseY < y-size1/2 || mouseY > y+size1/2) {
-      delete.amp(1.5);
+      delete.amp(1);
       delete.play();
       cleanTimeline();
       colorBar = 0;
@@ -49,7 +49,7 @@ public class Boia {
 
     if (!(mouseX < x-size1/2 || mouseX > x+size1/2 || mouseY < y-size1/2 || mouseY > y+size1/2) && mousePressed) {
       react();
-      sound.amp(1.5);
+      sound.amp(1);
       sound.play();
       mousePressed = false;
       opened = !opened;

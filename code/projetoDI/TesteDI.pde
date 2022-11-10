@@ -4,7 +4,7 @@ int cicleClock = 0; //contador de 4 timestamps do tempo entre ciclos
 int interClock = 0; //contador do tempo entre slots
 int instant = 0; //instant atual
 int loopLength = 5000; //em milissegundos
-int nSlots = 60; //número de slots possíveis
+int nSlots = 120; //número de slots possíveis
 int activeSlot = 0; //slot atual 
 boolean goodToDraw = true;
 
@@ -60,8 +60,8 @@ void setup(){
     
     peixes = new Peixe[nPeixes];
     
-    peixes[0] = new Peixe(0, "peixinho1.png", "som1.mp3", "som2.mp3", "som3.mp3", 100, 100, displayHeight/7);
-    peixes[1] = new Peixe(0, "peixinho2.png", "som4.mp3", "som5.mp3", "som6.mp3", 750, 750, displayHeight/6);
+    peixes[0] = new Peixe(0, "peixinho1.png", "som1.mp3", "som2.mp3", "som3.mp3", displayWidth/2, 200, displayHeight/7,(1/2)*PI);
+    peixes[1] = new Peixe(0, "peixinho2.png", "som4.mp3", "som5.mp3", "som6.mp3", displayWidth/2, displayHeight-200, displayHeight/6,(3/2)*PI);
     
     //criacao da boia -----//-----//-----
     
