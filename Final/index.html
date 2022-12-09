@@ -1,0 +1,75 @@
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>FishGang</title>
+
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <script src="https://smtpjs.com/v3/smtp.js"></script>
+
+</head>
+
+<body style="margin: 0; padding: 0; overflow: hidden;">
+  <script src="script.js"></script>
+  <script src="peixe.js"></script>
+  <script src="boia.js"></script>
+  <script src="timeline.js"></script>
+  <script src="popup.js"></script>
+
+  <!-- Espaco para o mail (popup) -->
+  <input type="text" id="email" placeholder="Insere o teu endereço email" style="font-size: 12pt;
+    background-color: rgb(255,255,255);
+    position: absolute;
+    padding-left: 10px;
+    border-radius: 5px;
+    border-color: rgb(255,255,255); 
+    display: none">
+
+  <!-- Botao Enviar -->
+  <button id="enviar" onclick="sendEmail()" value="Send Email" style="font-size: 16pt;
+    font-family: 'Gilroy-ExtraBold';
+    color: white;
+    background-color: rgba(255, 255, 255, 0);
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    padding-left: 10px;
+    border-radius: 5px;
+    border-color: rgb(255,255,255);
+    border-width: 3;
+    display: none">Enviar</button>
+
+  <!-- Script Enviar o mail -->
+  <script type="text/javascript">
+    function sendEmail() {
+
+      const headers = {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST,PATCH,OPTIONS'
+      }
+
+      fetch("http://127.0.0.1:5000", {
+        method: "POST",
+        body: JSON.stringify({
+          email: document.getElementById("email").value,
+          path_to_audio_file: "ficheiroTeste.txt",
+        }),
+        headers: headers,
+
+      }).then(result => {
+        console.log("Completed with result:", result);
+      }).catch(err => {
+        console.error(err);
+      });
+
+    }
+
+  </script>
+
+  <script src="p5/p5.min.js"></script>
+  <script src="howler.js"></script>
+
+</body>
+</html>
