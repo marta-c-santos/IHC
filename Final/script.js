@@ -1,22 +1,24 @@
-var cicleClock = 0;             // contador de 4 timestamps do tempo entre ciclos
-var interClock = 0;             // contador do tempo entre slots
-var instant = 0;                // instant atual
-var loopLength = 15000;         // em milissegundos
-var nSlots = 100;               // número de slots possíveis
+var cicleClock = 0;                 // contador de 4 timestamps do tempo entre ciclos
+var interClock = 0;                 // contador do tempo entre slots
+var instant = 0;                    // instant atual
+var loopLength = 15000;             // em milissegundos
+var nSlots = 100;                   // número de slots possíveis
 var activeSlot = nSlots / 4 * 3;    // slot atual
 var colorBar = 255;
-var timeline;                   // array da timeline
-var timelineRaio;               // raio da timeline
-var peixesMar;                  // array peixes mar
-var peixesRio;                  // array peixes rio
-var peixes;                     // array peixes atual
-var nPeixes = 10;               // numero de peixes por cenario
-var boia;                       // identifica a boia
+var timeline;                       // array da timeline
+var timelineRaioAux;                // raio da timeline aux
+var peixesMar;                      // array peixes mar
+var peixesRio;                      // array peixes rio
+var peixes;                         // array peixes atual
+var nPeixes = 10;                   // numero de peixes por cenario
+var boia;                           // identifica a boia
+var botaoEnviar = false;            // click no Botao 'Enviar Email'
+var botaoFechar = false;            // click no Botao Fechar
 
 var volumeMar = 1;
 var volumeRio = 0;
 
-var cenario = 1;                // identifica o senario atual
+var cenario = 1;                    // identifica o senario atual
 var alphaChange = 0;
 var changeAnim = false;
 
@@ -34,52 +36,66 @@ var dragRio;
 var dragRio2;
 var dragSound;
 var dragSound2;
+var dragIndex=0;
+
+var volumeDrag = [0,0,0,0,0,0];
+var volumeDrag2 = [0,0,0,0,0,0];
 
 var angTimeline = 0;
 
 var bg1, bg2;
 
+let recorder, soundFile;
+var recordAux = false;
+
 function windowResized() {
     resizeCanvas(windowWidth, windowHeight);
 }
 
+function preload() {
+    ambientSoundMar = loadSound("Sounds/ambient1.mp3");
+    ambientSoundRio = loadSound("Sounds/ambient2.mp3");
+}
 function setup() {
 
-    bg1 = loadImage('Images/mar.png');
-    bg2 = loadImage('Images/rio.png');
+    recorder = new p5.SoundRecorder();
+    soundFile = new p5.SoundFile();
+    gravacao = new p5.SoundFile();
+
+    bg1 = loadImage('Images/1mar.png');
+    bg2 = loadImage('Images/1rio.png');
 
     light = loadFont('Fonts/Gilroy-Light.otf');
     bold = loadFont('Fonts/Gilroy-ExtraBold.otf');
 
     frameRate(60);
     createCanvas(windowWidth, windowHeight);
-    //background(175, 238, 238);
     noStroke();
 
-    ambientSoundMar = new Howl({ src: ["Sounds/ambient1.mp3"], autoplay: true, loop: true, volume: 0 });
-    ambientSoundRio = new Howl({ src: ["Sounds/ambient2.mp3"], autoplay: true, loop: true, volume: 0 });
+    //ambientSoundMar.loop();       //aqui
+    ambientSoundRio.loop();
 
-    dragMar = [new Howl({ src: ["Sounds/dragMar1.mp3"], loop: true, volume: 0.5 }),
-    new Howl({ src: ["Sounds/dragMar2.mp3"], loop: true, volume: 0.5 }),
-    new Howl({ src: ["Sounds/dragMar3.mp3"], loop: true, volume: 0.5 })]
+    dragMar = [loadSound("Sounds/dragMar1.mp3"),
+    loadSound("Sounds/dragMar2.mp3"),
+    loadSound("Sounds/dragMar3.mp3")]
 
-    dragMar2 = [new Howl({ src: ["Sounds/dragMar4.mp3"], loop: true, volume: 0.25 }),
-    new Howl({ src: ["Sounds/dragMar5.mp3"], loop: true, volume: 0.25 }),
-    new Howl({ src: ["Sounds/dragMar6.mp3"], loop: true, volume: 0.25 })]
+    dragMar2 = [loadSound("Sounds/dragMar4.mp3"),
+    loadSound("Sounds/dragMar5.mp3"),
+    loadSound("Sounds/dragMar6.mp3")]
 
-    dragRio = [new Howl({ src: ["Sounds/dragRio1.mp3"], loop: true, volume: 0.5 }),
-    new Howl({ src: ["Sounds/dragRio2.mp3"], loop: true, volume: 0.5 }),
-    new Howl({ src: ["Sounds/dragRio3.mp3"], loop: true, volume: 0.5 })]
+    dragRio = [loadSound("Sounds/dragRio1.mp3"),
+    loadSound("Sounds/dragRio2.mp3"),
+    loadSound("Sounds/dragRio3.mp3")]
 
-    dragRio2 = [new Howl({ src: ["Sounds/dragRio4.mp3"], loop: true, volume: 0.25 }),
-    new Howl({ src: ["Sounds/dragRio5.mp3"], loop: true, volume: 0.25 }),
-    new Howl({ src: ["Sounds/dragRio6.mp3"], loop: true, volume: 0.25 })]
+    dragRio2 = [loadSound("Sounds/dragRio4.mp3"),
+    loadSound("Sounds/dragRio5.mp3"),
+    loadSound("Sounds/dragRio6.mp3")]
 
     // inicializar timeline -----//-----//-----
     timeline = Array.from(new Array(nSlots), () => new Array(nPeixes));
     for (let i = 0; i < nSlots; i++) {
         for (let j = 0; j < nPeixes; j++) {
-            timeline[i][j] = -1;
+            timeline[i][j] = [-1,-1];
         }
     }
 
@@ -116,6 +132,7 @@ function setup() {
 
     //loopLength = boia.tempos[boia.indTempos]*1000;
     timelineRaio = displayHeight / 5;
+    timelineRaioAux = timelineRaio;
 
     document.getElementById("email").style.width = displayWidth - 2 * displayWidth / 4 - displayHeight / 40 * 2;
     document.getElementById("email").style.height = displayHeight / 20;
@@ -125,27 +142,21 @@ function setup() {
 
 function draw() {
 
-    //console.log(boia.opened,popupOpen);
-
     if (cenario == 1) {
         peixes = peixesMar;
         dragSound = dragMar;
         dragSound2 = dragMar2;
         image(bg1, displayWidth / 2, displayHeight / 2, displayWidth, displayHeight);
         background(0, 60, 100, 100);
-        //tint(255, 255);
     }
     else {
         peixes = peixesRio;
         dragSound = dragRio;
         dragSound2 = dragRio2;
         image(bg2, displayWidth / 2, displayHeight / 2, displayWidth, displayHeight);
-        //background(175, 238, 0);
     }
 
     instant = millis();
-
-    //loopLength = boia.tempos[boia.indTempos]*1000;
 
     thiness = (displayHeight / 100) * thinCoef;
 
@@ -158,15 +169,32 @@ function draw() {
 
         interClock = instant;
 
+        // reescreve ficheiro audio
+        if (activeSlot == 75 && boia.rec) {
+            if (recordAux) {
+                console.log("acabei de gravar");
+                recorder.stop();
+                soundFile = gravacao;
+                //save(gravacao, 'mySound.wav');
+                recordAux = false;
+    
+            }
+            console.log("comecei a gravar");
+            gravacao = new p5.SoundFile();
+            recorder = new p5.SoundRecorder();
+            recorder.record(gravacao);
+            recordAux = true;
+        }
+        
         for (let i = 0; i < nPeixes; i++) {
             // tocar o som caso esteja gravado no slot
-            if (timeline[activeSlot][i] != -1) {
-                peixes[i].playSound(timeline[activeSlot][i]);
+            if (timeline[activeSlot][i][0] != -1) {
+                peixes[i].playSound(timeline[activeSlot][i][0]);
 
                 peixes[i].react();
             } // gravar o som caso o slot esteja vazio
             else if (peixes[i].lastClick != -1) {
-                if (boia.rec) timeline[activeSlot][i] = peixes[i].lastClick;
+                if (boia.rec) timeline[activeSlot][i][0] = peixes[i].lastClick;
                 peixes[i].lastClick = -1;
             }
         }
@@ -183,6 +211,7 @@ function draw() {
 
     boia.draw();
 
+    // Mudanca de cenario
     if (changeAnim) {
         if (alphaChange < 300) {
             alphaChange += 9;
@@ -209,13 +238,28 @@ function draw() {
         if (cenario == 2 && volumeRio <= 1) volumeRio += 0.05;
     }
 
-    //ambientSoundMar.volume(volumeMar);
-    ambientSoundRio.volume(volumeRio);
+    ambientSoundMar.setVolume(volumeMar);
+    ambientSoundRio.setVolume(volumeRio);
 
+    if (checkClickAndDrag() == false) {
+
+        for (let i = 0;i <3;i++) {
+            if (volumeDrag[i]>=0) volumeDrag[i]-= 0.01;
+            else dragSound[i].stop();
+            if (volumeDrag2[i]>=0)volumeDrag2[i]-= 0.01;
+            else dragSound2[i].stop();
+            dragSound[i].setVolume(volumeDrag[i]);
+            dragSound2[i].setVolume(volumeDrag2[i]);
+        }
+    }
+    
     noStroke();
     fill(0, 0, 0, alphaChange);
     rect(0, 0, displayWidth, displayHeight);
 
     //popup
     if (popupOpen) popup();
+
+    // Botao fechar
+    //if (botaoFechar) botaoFecharF();
 }

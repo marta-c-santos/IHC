@@ -7,7 +7,7 @@ function drawTimeline() {
     stroke(255, colorBar, colorBar);
     arc(displayWidth / 2, displayHeight / 2, timelineRaio, timelineRaio, -PI / 2, angTimeline);
 
-    if (timelineRaio > displayHeight / 5) timelineRaio -= 1.5;
+    if (timelineRaio > displayHeight / 5) timelineRaio -= 1.3;
     if (colorBar < 255) colorBar += 9;
 
     if (boia.rec) {
@@ -22,12 +22,18 @@ function drawTimeline() {
     // marcacao notas
     for (let i = 0; i < nSlots; i++) {
         for (let j = 0; j < nPeixes; j++) {
-            if (timeline[i][j] != -1) {
+            if (timeline[i][j][0] != -1) {
                 noFill();
                 strokeCap(SQUARE);
                 strokeWeight(thiness * 2);
                 stroke(peixes[j].color[0], peixes[j].color[1], peixes[j].color[2]);
-                arc(displayWidth / 2, displayHeight / 2, timelineRaio, timelineRaio, i * 2 * PI / nSlots, i * 2 * PI / nSlots + 2 * PI / nSlots / 2);
+
+                let aux = timeline[i][j][1];
+                if (aux != -1) {
+                    console.log("ai");
+                    arc(displayWidth / 2, displayHeight / 2, timelineRaio, timelineRaio, i * 2 * PI / nSlots, i * 2 * PI / nSlots + 2 * PI / nSlots * timeline[i][j][1]);
+                }
+                else arc(displayWidth / 2, displayHeight / 2, timelineRaio, timelineRaio, i * 2 * PI / nSlots, i * 2 * PI / nSlots + 2 * PI / nSlots / 2);
                 break;
             }
         }
@@ -37,7 +43,8 @@ function drawTimeline() {
 function cleanTimeline() {
     for (let i = 0; i < nSlots; i++) {
         for (let j = 0; j < nPeixes; j++) {
-            timeline[i][j] = -1;
+            timeline[i][j][0] = -1;
+            timeline[i][j][1] = -1;
         }
     }
 }
@@ -45,7 +52,7 @@ function cleanTimeline() {
 function checkNotes() {
     for (let i = 0; i < nSlots; i++) {
         for (let j = 0; j < nPeixes; j++) {
-            if (timeline[i][j] != -1) return true;
+            if (timeline[i][j][0] != -1) return true;
         }
     }
     return false;

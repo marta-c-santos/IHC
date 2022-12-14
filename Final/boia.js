@@ -21,6 +21,11 @@ class Boia {
     opaSave = 75;
     opaRec = 75;
 
+    timeout = 0;
+    timeoutCheck = true;
+    opaTimeout = 0;
+    timeoutShade = false;
+
     rec = false;
 
     raioPulsar = 0;
@@ -53,8 +58,18 @@ class Boia {
     }
 
     draw() {
-        //menu
+
+        if (this.timeoutShade) { if (this.opaTimeout < 100) this.opaTimeout += 6; }
+        else if (this.opaTimeout > 0) this.opaTimeout -= 3;
+
+        //chamada de atenção
+        fill(0, 0, 0, this.opaTimeout);
+        noStroke();
+        rect(0, 0, displayWidth, displayHeight);
+
+        // Menu
         if (this.opened) {
+            this.timeout = instant;
             fill(0, 0, 0, 100);
             noStroke();
             rect(0, 0, displayWidth, displayHeight);
@@ -180,6 +195,26 @@ class Boia {
             }
         }
 
+        if (instant >= this.timeout + loopLength * 6 - loopLength / nSlots * 2) {
+            this.timeoutShade = true;
+        }
+
+        if (instant >= this.timeout + loopLength * 6) {
+            if (this.timeoutCheck) this.reactTimeout();
+            this.timeoutCheck = false;
+        }
+
+        if (instant >= this.timeout + loopLength * 6 + loopLength / nSlots * 4) {
+            this.reactTimeout();
+            this.timeoutCheck = true;
+        }
+
+        if (instant >= this.timeout + loopLength * 6 + loopLength / nSlots * 6) {
+            this.timeout = instant;
+            this.timeoutShade = false;
+        }
+
+
         if (this.opa2 > 0) this.opa2--;
 
         this.ang += 0.005;
@@ -239,10 +274,18 @@ class Boia {
         this.opaDelete = 175;
         this.opaRec = 175;
         this.opaSave = 175;
-        timelineRaio = timelineRaio * 1.1;
+        timelineRaio = timelineRaioAux * 1.1;
+    }
+
+    reactTimeout() {
+        this.sizeAux1 = this.size1 * 1.2;
+        timelineRaio = timelineRaioAux * 1.2;
+        //this.sound.play();
+        //colorBar = 0;
     }
 
     react2() {
+
         this.sizeAux2 = this.size2 * 1.1;
     }
 
@@ -254,6 +297,7 @@ class Boia {
         this.size4 = displayHeight / 6.2 * 1.1;
     }
 
+    // Botao guardar audio
     saveHandle() {
         popupOpen = true;
         this.opened = false;
@@ -262,8 +306,14 @@ class Boia {
         this.react2();
         this.react3();
         this.react4();
+        //recorder.stop();
+        //save(soundFile, 'mySound.wav');         // aqui
+        //let auxiliar = soundFile.getBlob();
+        //blobToFile(soundFile.getBlob(), 'mySound.wav');
+        //console.log(auxiliar);
     }
 
+    // Botao gravar audio
     recHandle() {
         this.opaRec = 175;
         if (this.rec == true) this.rec = false;
@@ -275,6 +325,7 @@ class Boia {
         this.react4();
     }
 
+    // Botao delete
     deleteHandle() {
         this.deleteAnimation = true;
         this.deleteRaio = this.sizeAux2;
@@ -288,12 +339,19 @@ class Boia {
         //this.opened = false;
     }
 
+    // Botao mudar cenario
     changeHandle() {
         this.opaChange = 175;
         this.react2();
         this.react3();
         this.react4();
         changeAnim = true;
+        this.click.play();
+        this.rec = false;
+    }
+
+    // Botao enviar email
+    sendEmailButton() {
         this.click.play();
     }
 }

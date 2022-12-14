@@ -54,7 +54,7 @@
         method: "POST",
         body: JSON.stringify({
           email: document.getElementById("email").value,
-          path_to_audio_file: "ficheiroTeste.txt",
+          path_to_audio_file: "Ficheiro/mySound.wav",
         }),
         headers: headers,
 
@@ -63,6 +63,8 @@
       }).catch(err => {
         console.error(err);
       });
+      boia.click.play();
+      botaoEnviar = true;
 
     }
 
@@ -70,6 +72,7 @@
 
   <script src="p5/p5.min.js"></script>
   <script src="howler.js"></script>
+  <script src="p5/addons/p5.sound.js"></script>
 
 </body>
 

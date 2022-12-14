@@ -8,6 +8,9 @@ from os.path import basename
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
+from email.mime.base import MIMEBase
+from email import encoders
+
 app = Flask(__name__)
 CORS(app)
 
@@ -29,13 +32,14 @@ def home():
     body = MIMEText(content, 'plain')
     msg.attach(body)
 
-    filename = 'ficheiroTeste.txt'
-    open(filename, 'w')
-    with open(filename, 'r') as f:
-        attachment = MIMEApplication(f.read(), Name=basename(filename))
-        attachment['Content-Disposition'] = 'attachment; filename="{}"'.format(
-            basename(filename))
-    msg.attach(attachment)
+    filename = 'Ficheiro/mySound.wav'
+
+    part = MIMEBase('application', "octet-stream")
+    with open(filename, 'rb') as file:
+        part.set_payload(file.read())
+    encoders.encode_base64(part)
+    part.add_header('Content-Disposition', 'attachment; filename={}'.format(filename))
+    msg.attach(part)
 
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
